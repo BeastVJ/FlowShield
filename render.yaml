@@ -65,7 +65,7 @@ services:
     name: flowshield-frontend
     repo: https://github.com/BeastVJ/FlowShield.git
     branch: main
-    buildCommand: cd packages/frontend && npm ci && npm run build
+    buildCommand: cd packages/frontend && npm install && npm run build
     publishPath: packages/frontend/dist
     headers:
       - path: /*
