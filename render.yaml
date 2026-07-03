@@ -27,7 +27,7 @@ services:
     name: flowshield-api
     runtime: docker
     repo: https://github.com/BeastVJ/FlowShield.git
-    branch: main
+    branch: master
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /health
@@ -64,7 +64,7 @@ services:
   - type: static
     name: flowshield-frontend
     repo: https://github.com/yourusername/flowshield   # 🔁 Replace with your repo URL
-    branch: main
+    branch: master
     buildCommand: cd packages/frontend && npm ci && npm run build
     publishPath: packages/frontend/dist
     headers:
