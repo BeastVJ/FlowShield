@@ -9,6 +9,8 @@ RUN npm install
 # Build
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./
+COPY --from=deps /app/package-lock.json ./
 COPY packages/backend/tsconfig.json ./
 COPY packages/backend/prisma ./prisma
 COPY packages/backend/src ./src
@@ -21,6 +23,7 @@ ENV NODE_ENV=production
 
 # Install only production deps in a clean stage
 COPY packages/backend/package.json ./
+COPY --from=builder /app/package-lock.json ./
 RUN npm install --production
 
 # Copy prisma CLI and client from builder for migrations at runtime
