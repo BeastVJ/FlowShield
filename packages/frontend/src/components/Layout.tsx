@@ -3,7 +3,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
   LayoutDashboard,
   FolderKanban,
-  BarChart3,
   Settings,
   Shield,
   LogOut,

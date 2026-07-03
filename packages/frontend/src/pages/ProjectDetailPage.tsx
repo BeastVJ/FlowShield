@@ -3,8 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { projectsApi, keysApi } from '@/lib/api';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Key, Plus, RotateCw, Trash2, Copy, Eye, EyeOff } from 'lucide-react';
-import { AlgorithmType } from '@/lib/types';
+import { Key, Plus, RotateCw, Trash2, Copy, EyeOff } from 'lucide-react';
 
 const ALGORITHMS = [
   { value: 'FIXED_WINDOW', label: 'Fixed Window', desc: 'Simple counter per time window' },
@@ -150,7 +149,7 @@ export default function ProjectDetailPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-white">{k.name as string}</p>
                   <p className="text-xs text-gray-500 font-mono">{k.key as string}</p>
-                  {k.policy && (
+                  {!!k.policy && (
                     <p className="text-xs text-gray-500 mt-1">
                       {(k.policy as Record<string, unknown>).algorithm as string} • {(k.policy as Record<string, unknown>).maxRequests as number} req / {(k.policy as Record<string, unknown>).windowMs as number}ms
                     </p>

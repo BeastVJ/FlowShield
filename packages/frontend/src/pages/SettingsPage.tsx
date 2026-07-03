@@ -80,7 +80,7 @@ export default function SettingsPage() {
                     {new Date(log.createdAt as string).toLocaleString()}
                   </p>
                 </div>
-                {log.ipAddress && (
+                {!!log.ipAddress && (
                   <span className="text-xs text-gray-500 font-mono">{log.ipAddress as string}</span>
                 )}
               </div>

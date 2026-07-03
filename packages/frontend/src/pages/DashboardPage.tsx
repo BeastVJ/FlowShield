@@ -1,15 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { projectsApi, analyticsApi } from '@/lib/api';
+import { projectsApi } from '@/lib/api';
 import {
   Shield,
-  Key,
   TrendingUp,
   AlertTriangle,
   Activity,
   Zap,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getSocket, subscribeToProject } from '@/lib/socket';
+import { subscribeToProject } from '@/lib/socket';
 import {
   AreaChart,
   Area,

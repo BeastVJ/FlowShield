@@ -2,8 +2,6 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { analyticsApi } from '@/lib/api';
 import {
-  AreaChart,
-  Area,
   BarChart,
   Bar,
   XAxis,
@@ -15,7 +13,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { TrendingUp, TrendingDown, Activity, Clock } from 'lucide-react';
+import { TrendingUp, TrendingDown, Clock } from 'lucide-react';
 
 const COLORS = ['#22c55e', '#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6'];
 
