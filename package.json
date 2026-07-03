@@ -1,0 +1,17 @@
+{
+  "name": "flowshield",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FlowShield - Production-Grade Rate Limiter as a Service",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd packages/backend && npm run dev",
+    "dev:frontend": "cd packages/frontend && npm run dev",
+    "build": "cd packages/backend && npm run build",
+    "test": "cd packages/backend && npm test",
+    "lint": "cd packages/backend && npm run lint"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

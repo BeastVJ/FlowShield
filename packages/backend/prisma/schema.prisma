@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum ProjectPlan {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum AlgorithmType {
+  FIXED_WINDOW
+  SLIDING_WINDOW
+  SLIDING_LOG
+  TOKEN_BUCKET
+  LEAKY_BUCKET
+}
+
+enum ApiKeyStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+enum AuditAction {
+  USER_REGISTER
+  USER_LOGIN
+  USER_LOGOUT
+  PROJECT_CREATE
+  PROJECT_UPDATE
+  PROJECT_DELETE
+  APIKEY_CREATE
+  APIKEY_ROTATE
+  APIKEY_REVOKE
+  POLICY_UPDATE
+  RATE_LIMIT_HIT
+  RATE_LIMIT_BLOCKED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  passwordHash  String   @map("password_hash")
+  emailVerified Boolean  @default(false) @map("email_verified")
+  avatarUrl     String?  @map("avatar_url")
+  role          UserRole @default(MEMBER)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  projects       Project[]
+  refreshTokens  RefreshToken[]
+  auditLogs      AuditLog[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  userAgent String?  @map("user_agent")
+  ipAddress String?  @map("ip_address")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Project {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String      @map("owner_id")
+  plan        ProjectPlan @default(FREE)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  owner   User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  apiKeys ApiKey[]
+  logs    RequestLog[]
+
+  @@index([ownerId])
+  @@map("projects")
+}
+
+model ApiKey {
+  id          String       @id @default(cuid())
+  key         String       @unique
+  name        String
+  projectId   String       @map("project_id")
+  status      ApiKeyStatus @default(ACTIVE)
+  lastUsedAt  DateTime?    @map("last_used_at")
+  expiresAt   DateTime?    @map("expires_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  project Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  logs    RequestLog[]
+  policy  Policy?
+
+  @@index([key])
+  @@index([projectId])
+  @@map("api_keys")
+}
+
+model Policy {
+  id               String      @id @default(cuid())
+  apiKeyId         String      @unique @map("api_key_id")
+  algorithm        AlgorithmType @default(FIXED_WINDOW)
+  maxRequests      Int         @default(100) @map("max_requests")
+  windowMs         Int         @default(60000) @map("window_ms")
+  burstCapacity    Int?        @map("burst_capacity")
+  refillRate       Float?      @map("refill_rate")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+
+  apiKey ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  @@map("policies")
+}
+
+model RequestLog {
+  id          String   @id @default(cuid())
+  projectId   String   @map("project_id")
+  apiKeyId    String   @map("api_key_id")
+  identifier  String
+  method      String
+  path        String
+  statusCode  Int      @map("status_code")
+  allowed     Boolean
+  latencyMs   Int      @map("latency_ms")
+  userAgent   String?  @map("user_agent")
+  ipAddress   String?  @map("ip_address")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  apiKey  ApiKey  @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+  @@index([apiKeyId, createdAt])
+  @@index([identifier])
+  @@map("request_logs")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    AuditAction
+  userId    String   @map("user_id")
+  projectId String?  @map("project_id")
+  apiKeyId  String?  @map("api_key_id")
+  details   Json     @default("{}")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([action])
+  @@map("audit_logs")
+}
