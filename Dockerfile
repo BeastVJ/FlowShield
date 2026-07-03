@@ -20,6 +20,7 @@ RUN npm run build
 # Production image
 FROM node:20-alpine AS runner
 ENV NODE_ENV=production
+WORKDIR /app
 
 # Install only production deps in a clean stage
 COPY packages/backend/package.json ./
@@ -35,6 +36,9 @@ RUN addgroup --system nodejs && adduser --system --ingroup nodejs flowshield
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+
+# Fix permissions so flowshield user can run prisma migrations
+RUN chown -R flowshield:nodejs /app/node_modules
 
 USER flowshield
 EXPOSE 10000
