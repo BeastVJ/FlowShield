@@ -63,7 +63,7 @@ services:
   # ── Frontend Dashboard (Static Site) ────────────────────────
   - type: static
     name: flowshield-frontend
-    repo: https://github.com/yourusername/flowshield   # 🔁 Replace with your repo URL
+    repo: https://github.com/BeastVJ/FlowShield.git
     branch: master
     buildCommand: cd packages/frontend && npm ci && npm run build
     publishPath: packages/frontend/dist
