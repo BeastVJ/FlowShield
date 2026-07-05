@@ -22,6 +22,9 @@ FROM node:20-alpine AS runner
 ENV NODE_ENV=production
 WORKDIR /app
 
+# Install OpenSSL for Prisma compatibility on Alpine Linux
+RUN apk add --no-cache openssl
+
 # Install only production deps in a clean stage
 COPY packages/backend/package.json ./
 COPY --from=builder /app/package-lock.json ./
@@ -32,15 +35,22 @@ COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
+# Create .bin symlink so npx prisma works reliably
+RUN mkdir -p node_modules/.bin && ln -sf ../prisma/build/index.js node_modules/.bin/prisma
+
 RUN addgroup --system nodejs && adduser --system --ingroup nodejs flowshield
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
+# Copy startup script
+COPY packages/backend/start.sh ./
+RUN chmod +x start.sh && chown flowshield:nodejs start.sh
+
 # Fix permissions so flowshield user can run prisma migrations
-RUN chown -R flowshield:nodejs /app/node_modules
+RUN mkdir -p /app/logs && chown -R flowshield:nodejs /app/node_modules /app/logs
 
 USER flowshield
 EXPOSE 10000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
+CMD ["./start.sh"]
